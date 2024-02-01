@@ -3,7 +3,7 @@ import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import axios from 'axios';
-import icon from '../src/img/octagon.png';
+import icon from '../src/img/octagon.svg'; 
 
 const formSearch = document.querySelector('.form');
 const imageList = document.querySelector('.gallery');
@@ -15,19 +15,20 @@ const gallery = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
+const IMAGES_PER_PAGE = 40; 
+
 let currentPage = 1;
-let searchQuery = '';
 
 formSearch.addEventListener('submit', handleSearch);
 loadMoreBtn.addEventListener('click', loadMoreImages);
 
 async function handleSearch(event) {
   event.preventDefault();
-  searchQuery = event.currentTarget.elements.input.value.trim();
+  const searchQuery = event.currentTarget.elements.input.value;
 
   imageList.innerHTML = '';
 
-  if (!searchQuery) {
+  if (!searchQuery.trim()) {
     iziToast.show({
       title: '❕',
       theme: 'light',
@@ -85,7 +86,7 @@ async function fetchImages(value, page = 1) {
         orientation: 'horizontal',
         safesearch: 'true',
         page,
-        per_page: 40,
+        per_page: IMAGES_PER_PAGE,
       },
     });
 
@@ -109,20 +110,20 @@ function createMarkup(arr) {
           <div class="container-descr-inner"><p class="description">Downloads</p><span class="description-value">${downloads}</span></div>
         </div>
       </li>`;
-
+      
     imageList.insertAdjacentHTML('beforeend', html);
   });
 }
 
-async function loadMoreImages() {
+async function loadMoreImages(event) {
   currentPage += 1;
 
   try {
-    const data = await fetchImages(searchQuery, currentPage);
+    const data = await fetchImages(event.currentTarget.value, currentPage);
 
     if (data.hits.length === 0) {
       document.querySelector('.preload').classList.add('is-hidden');
-      loadMoreBtn.classList.add('is-hidden');
+      event.currentTarget.classList.add('is-hidden');
       iziToast.show({
         title: '❕',
         theme: 'light',
@@ -136,12 +137,16 @@ async function loadMoreImages() {
     } else {
       imageList.innerHTML += createMarkup(data.hits);
       gallery.refresh();
-      const cardHeight = imageList.lastElementChild.getBoundingClientRect().height;
-      window.scrollBy(0, cardHeight);
+      scrollToNextGroup(); 
     }
   } catch (error) {
     handleError(error);
   }
+}
+
+function scrollToNextGroup() {
+  const cardHeight = imageList.lastElementChild.getBoundingClientRect().height;
+  window.scrollBy(0, cardHeight);
 }
 
 function handleError(err) {
