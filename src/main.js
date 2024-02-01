@@ -3,7 +3,7 @@ import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import axios from 'axios';
-import icon from '../src/img/octagon.svg'; 
+import icon from '../src/img/octagon.png'; 
 
 const formSearch = document.querySelector('.form');
 const imageList = document.querySelector('.gallery');
