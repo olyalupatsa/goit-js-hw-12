@@ -39,7 +39,7 @@ async function handleSearch(event) {
       position: 'topLeft',
       timeout: 3000,
     });
-    return;
+      return;
   }
 
   preload.classList.remove('is-hidden');
@@ -97,8 +97,8 @@ async function fetchImages(value, page = 1) {
 }
 
 function createMarkup(arr) {
-  arr.forEach(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
-    const html = `
+  return arr.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
+    return `
       <li class="gallery-item">
         <a class="gallery-link" href="${largeImageURL}">
           <img class="gallery-image" src="${webformatURL}" alt="${tags}" />
@@ -110,9 +110,7 @@ function createMarkup(arr) {
           <div class="container-descr-inner"><p class="description">Downloads</p><span class="description-value">${downloads}</span></div>
         </div>
       </li>`;
-      
-    imageList.insertAdjacentHTML('beforeend', html);
-  });
+  }).join('');
 }
 
 async function loadMoreImages(event) {
