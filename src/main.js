@@ -3,7 +3,7 @@ import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import axios from 'axios';
-import icon from '../src/img/octagon.png'; 
+import icon from '../src/img/octagon.png';
 
 const formSearch = document.querySelector('.form');
 const imageList = document.querySelector('.gallery');
@@ -15,20 +15,19 @@ const gallery = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-const IMAGES_PER_PAGE = 40; 
-
 let currentPage = 1;
+let searchQuery = '';
 
 formSearch.addEventListener('submit', handleSearch);
 loadMoreBtn.addEventListener('click', loadMoreImages);
 
 async function handleSearch(event) {
   event.preventDefault();
-  const searchQuery = event.currentTarget.elements.input.value;
+  searchQuery = event.currentTarget.elements.input.value.trim();
 
   imageList.innerHTML = '';
 
-  if (!searchQuery.trim()) {
+  if (!searchQuery) {
     iziToast.show({
       title: '❕',
       theme: 'light',
@@ -74,7 +73,7 @@ async function handleSearch(event) {
 }
 
 async function fetchImages(value, page = 1) {
-  const BASE_URL = 'https://pixabay.com/api';
+  const BASE_URL = 'https://pixabay.com/api/';
   const apiKey = '41989541-8f5a4609d6994378f5ee88908';
 
   try {
@@ -86,7 +85,7 @@ async function fetchImages(value, page = 1) {
         orientation: 'horizontal',
         safesearch: 'true',
         page,
-        per_page: IMAGES_PER_PAGE,
+        per_page: 40,
       },
     });
 
@@ -97,24 +96,11 @@ async function fetchImages(value, page = 1) {
 }
 
 function createMarkup(arr) {
-  return arr
-    .map(
-      ({
-        webformatURL,
-        largeImageURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      }) =>
-        `<li class="gallery-item">
+  arr.forEach(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
+    const html = `
+      <li class="gallery-item">
         <a class="gallery-link" href="${largeImageURL}">
-           <img
-            class="gallery-image"
-            src="${webformatURL}"
-            alt="${tags}"
-          />
+          <img class="gallery-image" src="${webformatURL}" alt="${tags}" />
         </a>
         <div class="container-additional-info">
           <div class="container-descr-inner"><p class="description">Likes</p><span class="description-value">${likes}</span></div>
@@ -122,20 +108,21 @@ function createMarkup(arr) {
           <div class="container-descr-inner"><p class="description">Comments</p><span class="description-value">${comments}</span></div>
           <div class="container-descr-inner"><p class="description">Downloads</p><span class="description-value">${downloads}</span></div>
         </div>
-      </li>`
-    )
-    .join('');
+      </li>`;
+
+    imageList.insertAdjacentHTML('beforeend', html);
+  });
 }
 
-async function loadMoreImages(event) {
+async function loadMoreImages() {
   currentPage += 1;
 
   try {
-    const data = await fetchImages(event.currentTarget.value, currentPage);
+    const data = await fetchImages(searchQuery, currentPage);
 
     if (data.hits.length === 0) {
       document.querySelector('.preload').classList.add('is-hidden');
-      event.currentTarget.classList.add('is-hidden');
+      loadMoreBtn.classList.add('is-hidden');
       iziToast.show({
         title: '❕',
         theme: 'light',
@@ -149,16 +136,12 @@ async function loadMoreImages(event) {
     } else {
       imageList.innerHTML += createMarkup(data.hits);
       gallery.refresh();
-      scrollToNextGroup(); 
+      const cardHeight = imageList.lastElementChild.getBoundingClientRect().height;
+      window.scrollBy(0, cardHeight);
     }
   } catch (error) {
     handleError(error);
   }
-}
-
-function scrollToNextGroup() {
-  const cardHeight = imageList.lastElementChild.getBoundingClientRect().height;
-  window.scrollBy(0, cardHeight);
 }
 
 function handleError(err) {
@@ -175,3 +158,4 @@ function handleError(err) {
     timeout: 5000,
   });
 }
+
