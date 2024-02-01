@@ -3,6 +3,7 @@ import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import axios from 'axios';
+import icon from '../src/img/octagon.svg'; 
 
 const formSearch = document.querySelector('.form');
 const imageList = document.querySelector('.gallery');
@@ -13,6 +14,8 @@ const gallery = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });
+
+const IMAGES_PER_PAGE = 40; 
 
 let currentPage = 1;
 
@@ -83,7 +86,7 @@ async function fetchImages(value, page = 1) {
         orientation: 'horizontal',
         safesearch: 'true',
         page,
-        per_page: 40,
+        per_page: IMAGES_PER_PAGE,
       },
     });
 
@@ -124,7 +127,7 @@ function createMarkup(arr) {
     .join('');
 }
 
-async function loadMoreImages() {
+async function loadMoreImages(event) {
   currentPage += 1;
 
   try {
@@ -146,12 +149,16 @@ async function loadMoreImages() {
     } else {
       imageList.innerHTML += createMarkup(data.hits);
       gallery.refresh();
-      const cardHeight = imageList.lastElementChild.getBoundingClientRect().height;
-      window.scrollBy(0, cardHeight);
+      scrollToNextGroup(); 
     }
   } catch (error) {
     handleError(error);
   }
+}
+
+function scrollToNextGroup() {
+  const cardHeight = imageList.lastElementChild.getBoundingClientRect().height;
+  window.scrollBy(0, cardHeight);
 }
 
 function handleError(err) {
