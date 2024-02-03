@@ -126,7 +126,7 @@ async function loadMoreImages(event) {
       iziToast.show({
         title: '❕',
         theme: 'light',
-        message: `Вибачте, але ви досягли кінця результатів пошуку.`,
+        message: `We're sorry, but you've reached the end of search results.`,
         messageSize: '20px',
         messageColor: '#808080',
         backgroundColor: '#e7fc44',
