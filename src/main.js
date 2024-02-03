@@ -39,10 +39,10 @@ async function handleSearch(event) {
       position: 'topLeft',
       timeout: 3000,
     });
-      return;
+       return;
   }
 
-  preload.classList.remove('is-hidden');
+   preload.classList.remove('is-hidden');
   loadMoreBtn.classList.add('is-hidden');
 
   try {
@@ -69,6 +69,7 @@ async function handleSearch(event) {
   } finally {
     preload.classList.add('is-hidden');
   }
+  loadMoreBtn.dataset.query = searchQuery;
 
   event.currentTarget.reset();
 }
@@ -117,7 +118,7 @@ async function loadMoreImages(event) {
   currentPage += 1;
 
   try {
-    const data = await fetchImages(event.currentTarget.value, currentPage);
+     const data = await fetchImages(event.currentTarget.dataset.query, currentPage);
 
     if (data.hits.length === 0) {
       document.querySelector('.preload').classList.add('is-hidden');
@@ -125,7 +126,7 @@ async function loadMoreImages(event) {
       iziToast.show({
         title: '❕',
         theme: 'light',
-        message: `We're sorry, but you've reached the end of search results.`,
+        message: `Вибачте, але ви досягли кінця результатів пошуку.`,
         messageSize: '20px',
         messageColor: '#808080',
         backgroundColor: '#e7fc44',
@@ -135,7 +136,7 @@ async function loadMoreImages(event) {
     } else {
       imageList.innerHTML += createMarkup(data.hits);
       gallery.refresh();
-      scrollToNextGroup(); 
+      scrollToNextGroup();
     }
   } catch (error) {
     handleError(error);
