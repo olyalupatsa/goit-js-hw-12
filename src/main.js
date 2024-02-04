@@ -25,9 +25,7 @@ loadMoreBtn.addEventListener('click', loadMoreImages);
 async function handleSearch(event) {
   event.preventDefault();
   const searchQuery = event.currentTarget.elements.input.value;
-
   imageList.innerHTML = '';
-
   if (!searchQuery.trim()) {
     iziToast.show({
       title: '❕',
@@ -39,15 +37,13 @@ async function handleSearch(event) {
       position: 'topLeft',
       timeout: 3000,
     });
-       return;
+    return;
   }
-
-   preload.classList.remove('is-hidden');
+  preload.classList.remove('is-hidden');
   loadMoreBtn.classList.add('is-hidden');
-
   try {
-    const data = await fetchImages(searchQuery);
-
+    currentPage = 1; // Скидання номеру сторінки при новому пошуку
+    const data = await fetchImages(searchQuery, currentPage);
     if (data.hits.length === 0) {
       iziToast.show({
         iconUrl: icon,
@@ -70,10 +66,8 @@ async function handleSearch(event) {
     preload.classList.add('is-hidden');
   }
   loadMoreBtn.dataset.query = searchQuery;
-
   event.currentTarget.reset();
 }
-
 async function fetchImages(value, page = 1) {
   const BASE_URL = 'https://pixabay.com/api/';
   const apiKey = '41989541-8f5a4609d6994378f5ee88908';
@@ -115,13 +109,13 @@ function createMarkup(arr) {
 }
 
 async function loadMoreImages(event) {
-  currentPage += 1;
-
   try {
-     const data = await fetchImages(event.currentTarget.dataset.query, currentPage);
+    preload.classList.remove('is-hidden');
+
+    currentPage += 1;
+    const data = await fetchImages(event.currentTarget.dataset.query, currentPage);
 
     if (data.hits.length === 0) {
-      document.querySelector('.preload').classList.add('is-hidden');
       event.currentTarget.classList.add('is-hidden');
       iziToast.show({
         title: '❕',
@@ -140,6 +134,8 @@ async function loadMoreImages(event) {
     }
   } catch (error) {
     handleError(error);
+  } finally {
+    preload.classList.add('is-hidden');
   }
 }
 
